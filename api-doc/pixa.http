@@ -1,0 +1,4 @@
+@base_url =https://pixabay.com/api/
+@key = 20681239-a14f4057e32edf906b8c27d2b
+
+GET {{base_url}}/?q=dog&page=1&key={{key}}&image_type=photo&orientation=horizontal&per_page=12
