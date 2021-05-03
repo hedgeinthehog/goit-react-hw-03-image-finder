@@ -47,7 +47,10 @@ class App extends React.Component {
           behavior: 'smooth',
         });
       })
-      .catch(console.log)
+      .catch(error => {
+        alert('Error occured, please try again');
+        console.log(error);
+      })
       .finally(() => this.setState({ isLoading: false }));
   };
 
