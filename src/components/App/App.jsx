@@ -4,6 +4,7 @@ import Searchbar from '../Searchbar';
 import ImageGallery from '../ImageGallery';
 import Button from '../Button';
 import Loader from '../Loader';
+import Modal from '../Modal';
 
 class App extends React.Component {
   state = {
@@ -11,6 +12,8 @@ class App extends React.Component {
     searchQuery: '',
     currentPage: 1,
     isLoading: false,
+    showModal: false,
+    pickedPhotoUrl: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -33,7 +36,6 @@ class App extends React.Component {
     photosApi
       .fetchPhotos(options)
       .then(({ hits }) => {
-        console.log(hits);
         this.setState(prevState => ({
           photos: [...prevState.photos, ...hits],
           currentPage: prevState.currentPage + 1,
@@ -49,16 +51,30 @@ class App extends React.Component {
       .finally(() => this.setState({ isLoading: false }));
   };
 
+  openModal = event => {
+    const { target } = event;
+    if (target.nodeName === 'IMG') {
+      this.setState({ showModal: true, pickedPhotoUrl: target.dataset.source });
+    }
+  };
+
+  closeModal = () => {
+    this.setState({ showModal: false, pickedPhotoUrl: '' });
+  };
+
   render() {
-    const { photos, isLoading } = this.state;
+    const { photos, isLoading, showModal, pickedPhotoUrl } = this.state;
     const existPhotosToShow = photos.length > 0;
 
     return (
       <>
         <Searchbar onSubmit={this.handlQueryChange} />
-        <ImageGallery photos={photos} />
-        {/*     
-        <Modal /> */}
+        <ImageGallery photos={photos} onClick={this.openModal} />
+        {showModal && (
+          <Modal onClose={this.closeModal}>
+            <img src={pickedPhotoUrl} alt="" />
+          </Modal>
+        )}
         {isLoading && <Loader />}
         {existPhotosToShow && !isLoading && (
           <Button onClick={this.fetchPhotos} />
