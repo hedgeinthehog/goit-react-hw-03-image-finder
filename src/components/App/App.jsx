@@ -3,12 +3,14 @@ import photosApi from '../../services/pixabay-api';
 import Searchbar from '../Searchbar';
 import ImageGallery from '../ImageGallery';
 import Button from '../Button';
+import Loader from '../Loader';
 
 class App extends React.Component {
   state = {
     photos: [],
     searchQuery: '',
     currentPage: 1,
+    isLoading: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -25,7 +27,9 @@ class App extends React.Component {
   fetchPhotos = () => {
     const { currentPage, searchQuery } = this.state;
     const options = { query: searchQuery, page: currentPage };
-		
+
+    this.setState({ isLoading: true });
+
     photosApi
       .fetchPhotos(options)
       .then(({ hits }) => {
@@ -41,20 +45,24 @@ class App extends React.Component {
           behavior: 'smooth',
         });
       })
-      .catch(console.log);
+      .catch(console.log)
+      .finally(() => this.setState({ isLoading: false }));
   };
 
   render() {
-    const { photos } = this.state;
+    const { photos, isLoading } = this.state;
+    const existPhotosToShow = photos.length > 0;
 
     return (
       <>
         <Searchbar onSubmit={this.handlQueryChange} />
         <ImageGallery photos={photos} />
-        {/* <Loader />
-        
+        {/*     
         <Modal /> */}
-        {photos.length > 0 && <Button onClick={this.fetchPhotos} />}
+        {isLoading && <Loader />}
+        {existPhotosToShow && !isLoading && (
+          <Button onClick={this.fetchPhotos} />
+        )}
       </>
     );
   }
